@@ -6,7 +6,7 @@ barrier_model_on = true;
 ast_model_on = true;
 inlet_model_on = true;
 make_gif = false;
-plot_on = true;
+plot_on = false;
 sedstrat_on = false;
 
 %general parameters
@@ -57,7 +57,7 @@ inlet_asp = sqrt(0.005); %aspect ratio inlet (gamma in swart/zimmerman)
 g = 9.81;
 man_n = 0.05; %sm^-(1/3) manning n (vegetated channel)
 u_e = 1; %ms-1 inlet equilibrium velocity (see swart/zimmerman)
-inlet_max = 100; %maximum number of inlets in the model (mostly for debugging)
+inlet_max = 1; %maximum number of inlets in the model (mostly for debugging)
 marsh_cover = 0.5; %percentage of backbarrier covered by marsh and therefore does not contribute to tidal prism
 
 %new explicit relationship between boundary conditions and inlet area

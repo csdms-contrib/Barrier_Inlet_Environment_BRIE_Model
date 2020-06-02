@@ -150,7 +150,8 @@ for i=2:length(t), % years
             if isempty([inlet_idx{:}]),
                 basin_length = Jmin+zeros(ny,1);
             else,
-                basin_length = min(min(Jmin,2*dy*abs(bsxfun(@minus,1:ny,reshape(bsxfun(@plus,[-ny 0 ny],[inlet_idx{:}]'),[],1)))))';
+                %change%
+               basin_length = min(min(Jmin,2* dy*abs(bsxfun(@minus,1:ny,reshape(bsxfun(@plus,[-ny 0 ny],[inlet_idx{:}]'),[],1)))))';
             end
             
             %basin width is simpeler
@@ -241,7 +242,7 @@ for i=2:length(t), % years
             %distribution fractions
             Mt = rho_w*u_e.*u_e.*ai_eq(j);
             Mw = rho_w/16*g*wave_height^2.*wi_eq(j);
-            I = Mt./Mw.*wi_eq(j)./w(inlet_idx{j}(1));
+            I = Mt./Mw.*wi_eq(j)./w(inlet_idx{j}(1)); %test.......
             h_b(inlet_idx{j}) = 0;
             % constrain to not widen
             Ab_prv = w(inlet_prv{j}).*(h_b(inlet_idx{j}(1))+di_eq(j));
@@ -249,7 +250,7 @@ for i=2:length(t), % years
        
             %do fld delta eq volume
             Vfld = (x_b(inlet_idx{j}(1)) - x_s(inlet_idx{j}(1))+w_b_crit)*wi_eq(j)*d_b(inlet_idx{j}(1));
-            Vfld_max = (1e4*(u_e*ai_eq(j)/2/omega0)^0.37);
+            Vfld_max = (1e4*(u_e*ai_eq(j)/2/omega0)^0.37); %1e5; %
             
             %add fix to limit unrealistic flood-tidal delta size (based on
             %johnson flood-tidal delta of florida 2006
@@ -258,9 +259,13 @@ for i=2:length(t), % years
             end
             
             %calculate fractions based on I
+            %delta(j) = inlet_fraction(0.05,0.95,3,-3,I);
+            %beta(j) = inlet_fraction(0,0.9,10,3,I);
+            %beta_r(j) = inlet_fraction(0,0.9,0.9,-3,I);   
+            
             delta(j) = inlet_fraction(0,1,3,-3,I);
             beta(j) = inlet_fraction(0,1,10,3,I);
-            beta_r(j) = inlet_fraction(0,1,0.9,-3,I);    
+            beta_r(j) = inlet_fraction(0,0.9,0.9,-3,I); 
             
             %{ 
             humans affect inlets?
@@ -312,10 +317,10 @@ for i=2:length(t), % years
             Qinlet(i) = Qinlet(i)+inlet_sink; %m3 per time step
             
             %add inlet sink to shoreline change
-            x_s_dt(inlet_nex{j}) = x_s_dt(inlet_nex{j})+inlet_sink./(h_b(inlet_nex{j})+d_sf)./dy;
-            
+            %x_s_dt(inlet_nex{j}) = x_s_dt(inlet_nex{j})+inlet_sink./(h_b(inlet_nex{j})+d_sf)./dy;
 
-      
+            x_s_dt(temp_idx) = x_s_dt(temp_idx)+inlet_sink./(h_b(temp_idx)+d_sf)./length(temp_idx)./dy;
+     
         end
         
         new_inlet = [];
@@ -346,7 +351,7 @@ for i=2:length(t), % years
     
     %do implicit thing
     if ast_model_on,
-        r_ipl = coast_diff(max(1,min(wave_climl,round(90-theta)))).*dt/2/dy^2; %
+        r_ipl = max(0,coast_diff(max(1,min(wave_climl,round(90-theta)))).*dt/2/dy^2); %
         
         dv = [-r_ipl(end); -r_ipl(2:end); 1+2*r_ipl; -r_ipl(1:end-1); -r_ipl(1)];
         A = sparse(di,dj,dv);
@@ -357,7 +362,8 @@ for i=2:length(t), % years
     else,
         x_s = x_s + x_s_dt;
     end
-    
+
+
     %how are the other moving boundaries changing?
     x_t = x_t + x_t_dt;
     x_b = x_b + x_b_dt + x_b_fld_dt;
